@@ -1,7 +1,5 @@
 <?php
 
-//$data = [ 'instance' => 'botsin.space', 'token' => '', 'idStart' => 1, 'idEnd' => 75814 ];
-
 $data = json_decode(file_get_contents('data.json'),1);
 
 function getLastProd() {
@@ -54,7 +52,8 @@ function post($magicArray) {
 	if($by != '') {
 		$by = 'by '.$by;
 	}
-	$imgdata = file_get_contents($magicArray['prod']['screenshot']);
+	$url = str_replace('\ ', '', $magicArray['prod']['screenshot']);
+	$imgdata = file_get_contents($url);
 	file_put_contents('/tmp/tmppouet.png', $imgdata);
 	$img = postImg('/tmp/tmppouet.png');
 	$api = curl_init();
@@ -71,6 +70,8 @@ function post($magicArray) {
 
 
 getLastProd();
+
 $random = randomId();
 $prodId = getProd($random);
+
 post($prodId);
