@@ -1,18 +1,21 @@
 <?php
 
-$data = json_decode(file_get_contents('data.json'),1);
+$data = json_decode(file_get_contents('/mnt/a/WORK/pouetnet_bot/data.json'),1);
 
 function getLastProd() {
 	global $data;
 	while(true) {
 		$magicArray = json_decode(file_get_contents('http://api.pouet.net/v1/prod/?id='.$data['idEnd']),1);
-
-		if($magicArray['success']==1) {
+		var_dump($magicArray);
+		if(isset($magicArray['success']) && $magicArray['success'] === true) {
 			$data['idEnd']=$data['idEnd']+1;
 		} else {
-			$data['idEnd']=$data['idEnd']-1;
-			file_put_contents('data.json', json_encode($data));
-			break;
+			$data['idEnd']=$data['idEnd']+1;
+			$magicArray = json_decode(file_get_contents('http://api.pouet.net/v1/prod/?id='.$data['idEnd']),1); // checks if prod id got ommited
+			if(!isset($magicArray['success']) || $magicArray['success'] !== true) {
+				file_put_contents('data.json', json_encode($data));
+				break;
+			}
 		}
 	}
 	return $data['idEnd'];
@@ -71,7 +74,12 @@ function post($magicArray) {
 
 getLastProd();
 
-$random = randomId();
-$prodId = getProd($random);
+while(true) {
+	$random = randomId();
+	$prodId = getProd($random);
+	if(isset($prodId['success']) && $prodId['success'] === true) {
+		break;	
+	}
+}
 
 post($prodId);
